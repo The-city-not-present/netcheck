@@ -108,6 +108,43 @@ def render_page_performance(requested_path):
         ''.join([prep_markup(command,response_body,error_msg) for command,response_body,error_msg in results])
     )
 
+def render_page_netstats_refresh(requested_path):
+    commands = [
+        ['python','/root/netcheck/netcheck.py','--program','netprobe','--config','config.json','--output','connectivity_log.csv'],
+    ]
+    results = []
+    for command in commands:
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            response_body = result.stdout
+            error_msg = result.stderr
+            if not error_msg:
+                error_msg = None
+            results.append((' '.join(command),response_body,error_msg,))
+        except Exception as e:
+            results.append((' '.join(command),'',f'{e}',))
+
+    def prep_markup(command,response_body,error_msg):
+        part_wrapper_begin = f'<section class="mdmreport-banner">'
+        part_wrapper_end = f'</section>'
+        part_1_command = f'<div class="command"><pre>{command}</pre></div>'
+        part_2_body = f'<div class="command-output"><pre>{response_body}</pre></div>'
+        part_3_errors = f'<div class="command-err error"><pre>{error_msg}</pre></div>' if error_msg else ''
+        parts_total = f'{part_wrapper_begin}{part_1_command}{part_2_body}{part_3_errors}{part_wrapper_end}'
+        return parts_total
+
+    return render(
+        'Performance statistics',
+        'Performance statistics',
+        ''.join([prep_markup(command,response_body,error_msg) for command,response_body,error_msg in results])
+    )
+
 def render_page_render_csv(requested_path):
     trusted_dirs = ['/root/netcheck/','/Users/andrej/work/netmonitor/dist']
     def is_within_directory(file_path: str, directory: str) -> bool:

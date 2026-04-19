@@ -11,15 +11,15 @@ import traceback, sys
 if __name__ == '__main__':
     # run as a program
     from webserve import run
-    from produce_html import render_page_home, render_page_test, render_page_performance, render_page_render_csv, render_page_about
+    from produce_html import render_page_home, render_page_test, render_page_performance, render_page_render_csv, render_page_about, render_page_netstats_refresh
 elif '.' in __name__:
     # package
     from .webserve import run
-    from .produce_html import render_page_home, render_page_test, render_page_performance, render_page_render_csv, render_page_about
+    from .produce_html import render_page_home, render_page_test, render_page_performance, render_page_render_csv, render_page_about, render_page_netstats_refresh
 else:
     # included with no parent package
     from webserve import run
-    from produce_html import render_page_home, render_page_test, render_page_performance, render_page_render_csv, render_page_about
+    from produce_html import render_page_home, render_page_test, render_page_performance, render_page_render_csv, render_page_about, render_page_netstats_refresh
 
 
 
@@ -30,6 +30,7 @@ endpoints = {
     '/': render_page_home,
     '/test': render_page_test,
     '/perf': render_page_performance,
+    '/net_stats_refresh': render_page_netstats_refresh,
     '/reader': render_page_render_csv,
     '/about': render_page_about,
 }
