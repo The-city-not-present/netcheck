@@ -5,14 +5,16 @@ set -e  # exit on error
 SRC_PATH="./src/"
 SRC_BASHSCRIPT_NAMR="netcheck.sh"
 DELIVERY_PATH="./dist/"
-DELIVERY_BASHSCRIPT_NAME="netcheck.sh"
+DELIVERY_BASHSCRIPT_NAME="bashnetcheck.sh"
 DELIVERY_PYTHONSCRIPT_NAME="netcheck.py"
+DELIVERY_WEBSERVESCRIPT_NAME="webserve.py"
 
 SRC_CONFIG="config.json"
 SRC_BASHSCRIPT="${SRC_PATH}${SRC_BASHSCRIPT_NAMR}"
 DEST_CONFIG="${DELIVERY_PATH}config.json"
 DEST_BASHSCRIPT="${DELIVERY_PATH}${DELIVERY_BASHSCRIPT_NAME}"
 DEST_PYTHONSCRIPT="${DELIVERY_PATH}${DELIVERY_PYTHONSCRIPT_NAME}"
+DEST_WEBSERVESCRIPT="${DELIVERY_PATH}${DELIVERY_WEBSERVESCRIPT_NAME}"
 
 # 0. clean the folder
 echo "Cleaning up the folder..."
@@ -26,19 +28,27 @@ cp "$SRC_CONFIG" "$DEST_CONFIG"
 echo "Copying the bash script"
 cp "$SRC_BASHSCRIPT" "$DEST_BASHSCRIPT"
 
-#1.3. deliver .py script
+#1.3. deliver the .py script
 echo "Building the .py script"
 echo "Calling pinliner..."
 python src-make/lib/pinliner/pinliner/pinliner.py src -o "${DEST_PYTHONSCRIPT}"
 echo "Patching mdmtoolsap_bundle.py..."
-echo "# ..." >> "${DEST_PYTHONSCRIPT}"
-echo "# print('within mdmtoolsap_bundle')" >> "${DEST_PYTHONSCRIPT}"
-# REM REM :: no need for this, the root package is loaded automatically
-# echo "# import mdmtoolsap_bundle" >> "${DEST_PYTHONSCRIPT}"
 echo "from src import launcher" >> "${DEST_PYTHONSCRIPT}"
 echo "launcher.main()" >> "${DEST_PYTHONSCRIPT}"
-echo "# print('out of mdmtoolsap_bundle')" >> "${DEST_PYTHONSCRIPT}"
 echo "Done with pinliner"
+
+#1.4. deliver the webserve script
+echo "Building the webserve script"
+echo "Calling pinliner..."
+python src-make/lib/pinliner/pinliner/pinliner.py src_webserve -o "${DEST_WEBSERVESCRIPT}"
+echo "Patching mdmtoolsap_bundle.py..."
+echo "from src_webserve import launcher" >> "${DEST_WEBSERVESCRIPT}"
+echo "launcher.main()" >> "${DEST_WEBSERVESCRIPT}"
+echo "Done with pinliner for webserve"
+
+#1.5. copy the test file
+echo "Copying the bash script"
+cp "connectivity_log.csv" "${DELIVERY_PATH}connectivity_log_test.csv"
 
 #2. make updates to paths
 echo "Rename and update paths..."
