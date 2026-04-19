@@ -15,7 +15,8 @@ HTTP_STATUS="FAIL"
 DNS_STATUS="FAIL"
 
 # --- Ping test (success if ANY responds) ---
-for target in $PING_TARGETS; do
+# for target in $PING_TARGETS; do
+for target in $(jq -r '.PING_TARGETS[]' config.json); do
     OUTPUT=$(ping -c 1 "$target" 2>/dev/null)
 
     if echo "$OUTPUT" | grep -q "time="; then
@@ -31,13 +32,17 @@ for target in $PING_TARGETS; do
 done
 
 # --- DNS test ---
-if nslookup "$DNS_TARGET" >/dev/null 2>&1; then
+# if nslookup "$DNS_TARGET" >/dev/null 2>&1; then
+for target in $(jq -r '.DNS_TARGET[]' config.json); do
+  if nslookup "$target" >/dev/null 2>&1; then
     DNS_STATUS="OK"
-fi
+  fi
+done
 
 # --- HTTP test (success if ANY responds) ---
-for url in $HTTP_TARGETS; do
-    if curl -fsS --max-time 5 "$url" >/dev/null 2>&1; then
+# for target in $HTTP_TARGETS; do
+for target in $(jq -r '.HTTP_TARGETS[]' config.json); do
+    if curl -fsS --max-time 5 "$target" >/dev/null 2>&1; then
         HTTP_STATUS="OK"
         break
     fi

@@ -4,21 +4,28 @@ import traceback, sys
 
 
 
+import json
 
 
 
 if __name__ == '__main__':
     # run as a program
-    # from lib.mdd_parser import parse
-    from netcheck import probe_statuses
+    # from netcheck import probe_statuses
+    from network_ping import get_status as get_ping_status
+    from network_nslookup import get_status as get_nslookup_status
+    from network_http_request import get_status as get_httprequest_status
 elif '.' in __name__:
     # package
-    # from .lib.mdd_parser import parse
-    from .netcheck import probe_statuses
+    # from .netcheck import probe_statuses
+    from .network_ping import get_status as get_ping_status
+    from .network_nslookup import get_status as get_nslookup_status
+    from .network_http_request import get_status as get_httprequest_status
 else:
     # included with no parent package
-    # from lib.mdd_parser import parse
-    from netcheck import probe_statuses
+    # from netcheck import probe_statuses
+    from network_ping import get_status as get_ping_status
+    from network_nslookup import get_status as get_nslookup_status
+    from network_http_request import get_status as get_httprequest_status
 
 
 
@@ -29,8 +36,22 @@ else:
 
 def call_parse_program():
     # return probe_statuses({'arglist_strict':False})
-    result = probe_statuses()
-    print('\n'.join(f'{r}' for r in result))
+    with open("config.json") as f:
+        config = json.load(f)
+        results = []
+        for target in config['PING_TARGETS']:
+            result = get_ping_status(target)
+            results.append(result)
+
+        for target in config['DNS_TARGET']:
+            result = get_nslookup_status(target)
+            results.append(result)
+
+        for target in config['HTTP_TARGETS']:
+            result = get_httprequest_status(target)
+            results.append(result)
+
+        print('\n'.join(f'{r}' for r in results))
 
 def call_test_program():
     msg = '''

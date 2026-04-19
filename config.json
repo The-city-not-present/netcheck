@@ -1,0 +1,5 @@
+{
+  "PING_TARGETS":["1.1.1.1","8.8.8.8"],
+  "DNS_TARGET":["google.com","mail.ru","ru.wikipedia.org","youtube.com","praha.eu","thelapod.com","portal.rozhlas.cz","cvut.cz","ixbt.com","omgvpn.com"],
+  "HTTP_TARGETS":["https://www.google.com/generate_204","https://cloudflare.com/cdn-cgi/trace","http://example.com","https://omgvpn.com/ip"]
+}
