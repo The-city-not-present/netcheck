@@ -32,6 +32,8 @@ def render(result_ins_htmlmarkup_title,result_ins_htmlmarkup_heading,report_html
         end = report_html_template.TEMPLATE_HTML_END
     )
 
+    result_ins_htmlmarkup_heading_clean = f'<span style="display: block; overflow-x: auto; max-width: 100%;">{result_ins_htmlmarkup_heading}</span>'
+
     result = result_template
     result = result.replace(
         '{{INS_TITLE}}', result_ins_htmlmarkup_title
@@ -43,7 +45,7 @@ def render(result_ins_htmlmarkup_title,result_ins_htmlmarkup_heading,report_html
         '{{INS_REPORTTYPE}}', 'all'
     )
     result = result.replace(
-        '{{INS_HEADING}}', result_ins_htmlmarkup_heading
+        '{{INS_HEADING}}', result_ins_htmlmarkup_heading_clean
     )
     result = result.replace(
         '{{INS_BANNER}}', '<!-- banners --><style>.mdmreport-banner-global { display: none; }</style>'
