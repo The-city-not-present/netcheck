@@ -140,8 +140,8 @@ def render_page_netstats_refresh(requested_path):
         return parts_total
 
     return render(
-        'Performance statistics',
-        'Performance statistics',
+        'Action: refresh netstats',
+        'Action: refresh netstats',
         ''.join([prep_markup(command,response_body,error_msg) for command,response_body,error_msg in results])
     )
 
