@@ -55,13 +55,13 @@ def render(result_ins_htmlmarkup_title,result_ins_htmlmarkup_heading,report_html
 
     return result, 'text/html'
 
-def render_page_home(requested_path):
+def render_page_home(requested_path, handler_instance):
     return render('Home','Welcome!','<p>Welcome here!</p>')
 
-def render_page_test(requested_path):
+def render_page_test(requested_path, handler_instance):
     return render('Test page','Test','<p>Test page.</p>')
 
-def render_page_performance(requested_path):
+def render_page_performance(requested_path, handler_instance):
     commands = [
         ['uname','-a',],
         ['uptime',],
@@ -108,7 +108,7 @@ def render_page_performance(requested_path):
         ''.join([prep_markup(command,response_body,error_msg) for command,response_body,error_msg in results])
     )
 
-def render_page_netstats_refresh(requested_path):
+def render_page_netstats_refresh(requested_path, handler_instance):
     commands = [
         ['python','/root/netcheck/netcheck.py','--program','netprobe','--config','config.json','--output','connectivity_log.csv'],
     ]
@@ -145,7 +145,7 @@ def render_page_netstats_refresh(requested_path):
         ''.join([prep_markup(command,response_body,error_msg) for command,response_body,error_msg in results])
     )
 
-def render_page_render_csv(requested_path):
+def render_page_render_csv(requested_path, handler_instance):
     trusted_dirs = ['/root/netcheck/','/Users/andrej/work/netmonitor/dist']
     def is_within_directory(file_path: str, directory: str) -> bool:
         file_path = Path(file_path).resolve()
@@ -207,7 +207,23 @@ def render_page_render_csv(requested_path):
     for row in reversed(rows):
         results += row
 
-    return render('Display CSV',f'{file}',report_html_template.TEMPLATE_HTML_TABLE_BEGIN.replace('{{TABLE_ID}}','csv').replace('{{TABLE_NAME}}','csv').replace('{{INS_TABBANNER}}','')+results+report_html_template.TEMPLATE_HTML_TABLE_END)
+    resp_body = report_html_template.TEMPLATE_HTML_TABLE_BEGIN.replace('{{TABLE_ID}}','csv').replace('{{TABLE_NAME}}','csv').replace('{{INS_TABBANNER}}','')+results+report_html_template.TEMPLATE_HTML_TABLE_END
 
-def render_page_about(requested_path):
+    return render('Display CSV',f'{file}',resp_body)
+
+def render_page_visitor_inspect(requested_path, handler_instance):
+    client_ip = handler_instance.client_address[0]
+    response = ''
+    response += f'<tr class="mdmreport-record mdmreport-record-header"><td class="mdmreport-contentcell">Key</td><td class="mdmreport-contentcell">Value</td></tr>'
+    response += f'<tr class="mdmreport-record"><td class="mdmreport-contentcell">client_ip</td><td class="mdmreport-contentcell">{html.escape(client_ip)}</td></tr>'
+    for key, value in handler_instance.headers.items():
+        if 'x-forwarded-for'.lower() in key.lower():
+            response += f'<tr class="mdmreport-record"><td class="mdmreport-contentcell">{html.escape(key)}</td><td class="mdmreport-contentcell">{html.escape(value)}</td></tr>'
+    for key, value in handler_instance.headers.items():
+        if 'x-forwarded-for'.lower() not in key.lower():
+            response += f'<tr class="mdmreport-record"><td class="mdmreport-contentcell">{html.escape(key)}</td><td class="mdmreport-contentcell">{html.escape(value)}</td></tr>'
+    resp_body = report_html_template.TEMPLATE_HTML_TABLE_BEGIN.replace('{{TABLE_ID}}','headers').replace('{{TABLE_NAME}}','HTTP Headers').replace('{{INS_TABBANNER}}','')+response+report_html_template.TEMPLATE_HTML_TABLE_END
+    return render('Welcome!',f'Welcome, {client_ip}',resp_body)
+
+def render_page_about(requested_path, handler_instance):
     return render('Aboud','About me','<p>Andrey 2026.</p>')

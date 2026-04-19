@@ -17,7 +17,7 @@ def get_handler(endpoints):
                     self.wfile.write(b"Not Found")
                     return
 
-                content, conent_type = renderer(self.path)
+                content, conent_type = renderer(self.path, self)
                 if not conent_type:
                     conent_type = 'text/html'
 
