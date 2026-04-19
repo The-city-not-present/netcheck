@@ -3,6 +3,7 @@ import argparse
 import traceback, sys
 from datetime import datetime, timezone
 from pathlib import Path
+import os # for getsize - checking if file is empty
 import csv
 from dataclasses import asdict
 
@@ -87,6 +88,10 @@ def program_netcheck(config):
             output_file = '{output_file}'.format(output_file=output_file.resolve())
         else:
             raise FileNotFoundError('Inp source: file not provided; please use --file')
+        out_file_exists = Path(output_file).is_file()
+        if out_file_exists:
+            if os.path.getsize(output_file) == 0:
+                out_file_exists = False
 
 
         config = {
@@ -149,7 +154,7 @@ def program_netcheck(config):
             # print('\n'.join(f'{r}' for r in results))
 
             print(f'Netcheck script: Writing results to "{output_file}"')
-            with open(output_file, "w", newline="", encoding="utf-8") as file:
+            with open(output_file, "a", newline="", encoding="utf-8") as file:
                 fieldnames = ["target", "created_at", "success", "duration", "error_msg", "response_body"]
                 def clean(record):
                     record = {**record}
@@ -168,7 +173,9 @@ def program_netcheck(config):
                     return record
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
 
-                writer.writeheader()
+                # Write header only if file is new
+                if not out_file_exists:
+                    writer.writeheader()
                 writer.writerows(clean(asdict(record)) for record in results)
 
 
