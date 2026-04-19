@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 import os # for getsize - checking if file is empty
 import csv
-from dataclasses import asdict
 
 
 
@@ -156,27 +155,12 @@ def program_netcheck(config):
             print(f'Netcheck script: Writing results to "{output_file}"')
             with open(output_file, "a", newline="", encoding="utf-8") as file:
                 fieldnames = ["target", "created_at", "success", "duration", "error_msg", "response_body"]
-                def clean(record):
-                    record = {**record}
-                    response_body = record['response_body']
-                    response_body = f'{response_body}'
-                    if len(response_body)>64:
-                        response_body = response_body[:62]+'...'
-                    response_body = json.dumps(response_body)
-                    record['response_body'] = response_body
-                    error_msg = record['error_msg']
-                    error_msg = f'{error_msg}'
-                    if len(error_msg)>128:
-                        error_msg = error_msg[:126]+'...'
-                    error_msg = json.dumps(error_msg)
-                    record['error_msg'] = error_msg
-                    return record
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
 
                 # Write header only if file is new
                 if not out_file_exists:
                     writer.writeheader()
-                writer.writerows(clean(asdict(record)) for record in results)
+                writer.writerows(record.as_dict_str_values() for record in results)
 
 
 

@@ -1,16 +1,23 @@
 
 
 
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass, field, asdict
+from datetime import datetime, timezone
 import re
 import json
+
+
+
+def utc_now():
+    # return datetime.now(timezone.utc).isoformat(timespec="microseconds")
+    return datetime.now(timezone.utc)
+
 
 
 @dataclass(kw_only=True)
 class CheckResult:
     target: str
-    created_at: datetime = field(default_factory=datetime.now)
+    created_at: datetime = field(default_factory=utc_now)
     success: bool
     duration: float | None = None
     error_msg: str | None = None
@@ -43,3 +50,27 @@ class CheckResult:
             f"response_body={response_body}, "
             f" )"
         )
+
+    def as_dict_str_values(self):
+        record = {**asdict(self)}
+
+        response_body = record['response_body']
+        response_body = f'{response_body}'
+        if len(response_body)>64:
+            response_body = response_body[:62]+'...'
+        response_body = json.dumps(response_body)
+        record['response_body'] = response_body
+
+        error_msg = record['error_msg']
+        error_msg = f'{error_msg}'
+        if len(error_msg)>128:
+            error_msg = error_msg[:126]+'...'
+        error_msg = json.dumps(error_msg)
+        record['error_msg'] = error_msg
+
+        created_at = record['created_at']
+        created_at = created_at.isoformat(timespec="microseconds")
+        created_at = f'{created_at}'
+        record['created_at'] = created_at
+
+        return record

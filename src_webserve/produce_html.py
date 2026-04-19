@@ -192,7 +192,12 @@ def render_page_render_csv(requested_path):
             added_css = ' mdmreport-record-header' if i==0 else ''
             r += f'<tr class="mdmreport-record{added_css}">'
             for cell in row:
-                r += f'<td class="mdmreport-contentcell">{html.escape(cell)}</td>'
+                cell_clean = f'{cell}'
+                is_datetime = re.match(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.*',cell_clean)
+                cell_clean = html.escape(cell)
+                if is_datetime:
+                    cell_clean = f'<span data-role="date">{cell_clean}</span>'
+                r += f'<td class="mdmreport-contentcell">{cell_clean}</td>'
             r += '</tr>'
             if i>0:
                 rows.append(r)
