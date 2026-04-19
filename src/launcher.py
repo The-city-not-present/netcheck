@@ -4,28 +4,19 @@ import traceback, sys
 
 
 
-import json
+# import json
 
 
 
 if __name__ == '__main__':
     # run as a program
-    # from netcheck import probe_statuses
-    from network_ping import get_status as get_ping_status
-    from network_nslookup import get_status as get_nslookup_status
-    from network_http_request import get_status as get_httprequest_status
+    from netcheck import program_netcheck
 elif '.' in __name__:
     # package
-    # from .netcheck import probe_statuses
-    from .network_ping import get_status as get_ping_status
-    from .network_nslookup import get_status as get_nslookup_status
-    from .network_http_request import get_status as get_httprequest_status
+    from .netcheck import program_netcheck
 else:
     # included with no parent package
-    # from netcheck import probe_statuses
-    from network_ping import get_status as get_ping_status
-    from network_nslookup import get_status as get_nslookup_status
-    from network_http_request import get_status as get_httprequest_status
+    from netcheck import program_netcheck
 
 
 
@@ -34,24 +25,8 @@ else:
 
 
 
-def call_parse_program():
-    # return probe_statuses({'arglist_strict':False})
-    with open("config.json") as f:
-        config = json.load(f)
-        results = []
-        for target in config['PING_TARGETS']:
-            result = get_ping_status(target)
-            results.append(result)
-
-        for target in config['DNS_TARGET']:
-            result = get_nslookup_status(target)
-            results.append(result)
-
-        for target in config['HTTP_TARGETS']:
-            result = get_httprequest_status(target)
-            results.append(result)
-
-        print('\n'.join(f'{r}' for r in results))
+def call_netprobe_program():
+    return program_netcheck({'arglist_strict':False})
 
 def call_test_program():
     msg = '''
@@ -64,7 +39,7 @@ hello, world!
 
 
 run_programs = {
-    'netprobe': call_parse_program,
+    'netprobe': call_netprobe_program,
     'test': call_test_program,
 }
 
