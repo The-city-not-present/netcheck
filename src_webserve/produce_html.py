@@ -148,6 +148,8 @@ def render_page_render_csv(requested_path):
         reader = csv.reader(csvfile)
 
         # Iterate over each row
+        header_row = None
+        rows = []
         for i,row in enumerate(reader):
             r = ''
             added_css = ' mdmreport-record-header' if i==0 else ''
@@ -155,7 +157,13 @@ def render_page_render_csv(requested_path):
             for cell in row:
                 r += f'<td class="mdmreport-contentcell">{html.escape(cell)}</td>'
             r += '</tr>'
-            results += r
+            if i>0:
+                rows.append(r)
+            else:
+                header_row = r
+    results += header_row
+    for row in reversed(rows):
+        results += row
 
     return render('Display CSV',f'{file}',report_html_template.TEMPLATE_HTML_TABLE_BEGIN.replace('{{TABLE_ID}}','csv').replace('{{TABLE_NAME}}','csv').replace('{{INS_TABBANNER}}','')+results+report_html_template.TEMPLATE_HTML_TABLE_END)
 
